@@ -28,6 +28,12 @@ export default function EmployeeScanPage() {
     let reader: BrowserQRCodeReader | null = null;
     const startCamera = async () => {
       try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setCameraError("Camera access is not supported in this browser.");
+          return;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach((track) => track.stop());
         reader = new BrowserQRCodeReader();
         const devices = await BrowserQRCodeReader.listVideoInputDevices();
         if (!devices.length) {

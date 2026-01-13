@@ -223,11 +223,11 @@ export default function EmployeeHomePage() {
 
             <div className="w-[88%] aspect-square mb-10 bg-black rounded-[3rem] relative overflow-hidden shadow-2xl">
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-56 h-56 relative">
-                  <div className="absolute top-0 left-0 w-14 h-14 border-t-[5px] border-l-[5px] border-white rounded-tl-[2rem]"></div>
-                  <div className="absolute top-0 right-0 w-14 h-14 border-t-[5px] border-r-[5px] border-white rounded-tr-[2rem]"></div>
-                  <div className="absolute bottom-0 left-0 w-14 h-14 border-b-[5px] border-l-[5px] border-white rounded-bl-[2rem]"></div>
-                  <div className="absolute bottom-0 right-0 w-14 h-14 border-b-[5px] border-r-[5px] border-white rounded-br-[2rem]"></div>
+                <div className="w-60 h-60 relative">
+                  <div className="absolute top-0 left-0 w-16 h-16 border-t-[5px] border-l-[5px] border-white rounded-tl-[2rem]"></div>
+                  <div className="absolute top-0 right-0 w-16 h-16 border-t-[5px] border-r-[5px] border-white rounded-tr-[2rem]"></div>
+                  <div className="absolute bottom-0 left-0 w-16 h-16 border-b-[5px] border-l-[5px] border-white rounded-bl-[2rem]"></div>
+                  <div className="absolute bottom-0 right-0 w-16 h-16 border-b-[5px] border-r-[5px] border-white rounded-br-[2rem]"></div>
                   <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[scan_2s_linear_infinite]"></div>
                 </div>
               </div>
