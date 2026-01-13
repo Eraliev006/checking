@@ -22,38 +22,55 @@ export default function EmployeeScanPage() {
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [cameraStarting, setCameraStarting] = useState(false);
   const scanningRef = useRef(false);
+  const readerRef = useRef<BrowserQRCodeReader | null>(null);
 
   useEffect(() => {
-    let reader: BrowserQRCodeReader | null = null;
-    const startCamera = async () => {
-      try {
-        reader = new BrowserQRCodeReader();
-        const devices = await BrowserQRCodeReader.listVideoInputDevices();
-        if (!devices.length) {
-          setCameraError("No camera detected. Use manual entry instead.");
-          return;
-        }
-        if (!videoRef.current) return;
-        setCameraReady(true);
-        await reader.decodeFromVideoDevice(
-          devices[0].deviceId,
-          videoRef.current,
-          (result) => {
-            if (result) {
-              handleScan(result.getText());
-            }
-          }
-        );
-      } catch (err) {
-        setCameraError("Camera access denied. Use manual entry instead.");
-      }
-    };
-    startCamera();
     return () => {
-      reader?.reset();
+      readerRef.current?.reset();
+      readerRef.current = null;
     };
   }, []);
+
+  const startCamera = async () => {
+    if (cameraStarting || cameraReady) return;
+    setCameraStarting(true);
+    setCameraError(null);
+    try {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        setCameraError("Camera access is not supported in this browser.");
+        return;
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }
+      });
+      stream.getTracks().forEach((track) => track.stop());
+      const reader = new BrowserQRCodeReader();
+      readerRef.current = reader;
+      const devices = await BrowserQRCodeReader.listVideoInputDevices();
+      if (!devices.length) {
+        setCameraError("No camera detected. Use manual entry instead.");
+        return;
+      }
+      if (!videoRef.current) return;
+      setCameraReady(true);
+      await reader.decodeFromVideoDevice(
+        devices[0].deviceId,
+        videoRef.current,
+        (result) => {
+          if (result) {
+            handleScan(result.getText());
+          }
+        }
+      );
+    } catch (err) {
+      setCameraError("Camera access denied. Use manual entry instead.");
+      setCameraReady(false);
+    } finally {
+      setCameraStarting(false);
+    }
+  };
 
   const handleScan = async (value: string) => {
     if (!user) return;
@@ -86,6 +103,11 @@ export default function EmployeeScanPage() {
                 {!cameraReady && !cameraError && <Skeleton className="h-64 w-full" />}
                 <video ref={videoRef} className="h-64 w-full object-cover" />
               </div>
+              {!cameraReady && !cameraError && (
+                <Button className="w-full" onClick={startCamera} disabled={cameraStarting}>
+                  {cameraStarting ? "Requesting access..." : "Enable camera"}
+                </Button>
+              )}
               {cameraError && <p className="text-sm text-rose-500">{cameraError}</p>}
             </div>
             <div className="space-y-4">
