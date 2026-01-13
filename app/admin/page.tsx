@@ -2,13 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+import { AlertTriangle, Clock, UserCheck, UserMinus } from "lucide-react";
+
 import { api, type AdminRow, type AttendanceStatus } from "@/lib/api";
 import { formatTime, toDateKey } from "@/lib/date";
+import { AdminTopBar } from "@/components/layout/admin-top-bar";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const statusStyle = (status: AttendanceStatus) => {
@@ -68,61 +71,86 @@ export default function AdminOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily overview</CardTitle>
-          <CardDescription>Monitor team attendance for the selected date.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <label className="text-sm text-slate-500">Select date</label>
-              <Input type="date" value={date} onChange={(event) => setDate(event.target.value)} />
-            </div>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-950">
-                <p className="text-slate-400">Present</p>
-                <p className="text-xl font-semibold text-slate-900 dark:text-white">{summary.OK}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-950">
-                <p className="text-slate-400">Late</p>
-                <p className="text-xl font-semibold text-slate-900 dark:text-white">{summary.LATE}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-950">
-                <p className="text-slate-400">Absent</p>
-                <p className="text-xl font-semibold text-slate-900 dark:text-white">{summary.ABSENT}</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-800 dark:bg-slate-950">
-                <p className="text-slate-400">Incomplete</p>
-                <p className="text-xl font-semibold text-slate-900 dark:text-white">{summary.INCOMPLETE}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Attendance list</CardTitle>
-          <CardDescription>Search and filter employee check-ins.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <AdminTopBar
+        title="Overview"
+        subtitle="Monitor attendance and highlight exceptions."
+        actions={
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-950">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+              Date
+            </span>
             <Input
-              className="md:max-w-xs"
-              placeholder="Search employee"
+              className="h-9 w-[165px] border-none bg-transparent p-0 text-sm text-slate-700 shadow-none focus-visible:ring-0 dark:text-slate-100"
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+            />
+          </div>
+        }
+      />
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Present", value: summary.OK, icon: UserCheck, tone: "text-emerald-500" },
+          { label: "Late", value: summary.LATE, icon: Clock, tone: "text-amber-500" },
+          { label: "Absent", value: summary.ABSENT, icon: UserMinus, tone: "text-rose-500" },
+          {
+            label: "Incomplete",
+            value: summary.INCOMPLETE,
+            icon: AlertTriangle,
+            tone: "text-slate-500"
+          }
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.label} className="border-slate-200/70 shadow-sm dark:border-slate-800">
+              <CardContent className="flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+                    {item.value}
+                  </p>
+                </div>
+                <div className={`rounded-2xl border border-slate-200 p-3 dark:border-slate-800 ${item.tone}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="border-slate-200/70 shadow-sm dark:border-slate-800">
+        <CardContent className="space-y-4 p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <Input
+              className="lg:max-w-sm"
+              placeholder="Search employees"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
-            <Tabs value={tab} onValueChange={setTab}>
-              <TabsList>
-                {statusTabs.map((item) => (
-                  <TabsTrigger key={item.value} value={item.value}>
-                    {item.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-wrap items-center gap-3">
+              <Tabs value={tab} onValueChange={setTab}>
+                <TabsList>
+                  {statusTabs.map((item) => (
+                    <TabsTrigger key={item.value} value={item.value}>
+                      {item.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+              <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-400 dark:border-slate-800 dark:bg-slate-950">
+                <span className="uppercase tracking-[0.2em]">Date</span>
+                <Input
+                  className="h-8 w-[150px] border-none bg-transparent p-0 text-sm text-slate-700 shadow-none focus-visible:ring-0 dark:text-slate-100"
+                  type="date"
+                  value={date}
+                  onChange={(event) => setDate(event.target.value)}
+                />
+              </div>
+            </div>
           </div>
 
           {loading ? (
@@ -156,20 +184,20 @@ export default function AdminOverviewPage() {
               <div className="hidden lg:block">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow className="text-slate-400">
                       <TableHead>Employee</TableHead>
                       <TableHead>In</TableHead>
                       <TableHead>Out</TableHead>
-                      <TableHead>Status</TableHead>
+                      <TableHead className="text-right">Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredRows.map((row) => (
-                      <TableRow key={row.userId}>
+                      <TableRow key={row.userId} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40">
                         <TableCell>{row.fullName}</TableCell>
                         <TableCell>{formatTime(row.inTime)}</TableCell>
                         <TableCell>{formatTime(row.outTime)}</TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           <Badge className={statusStyle(row.status)}>{row.status}</Badge>
                         </TableCell>
                       </TableRow>

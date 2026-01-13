@@ -28,6 +28,10 @@ export type AdminRow = {
   status: AttendanceStatus;
 };
 
+export const resolveRoleFromEmail = (email: string): UserRole => {
+  return email.toLowerCase().includes("admin") ? "admin" : "employee";
+};
+
 type AuthSession = {
   token: string;
   user: User;
@@ -186,16 +190,49 @@ const saveSession = (session: AuthSession | null) => {
 
 const createToken = () => `mock-${Math.random().toString(36).slice(2, 10)}`;
 
+const toDisplayName = (email: string) => {
+  const base = email.split("@")[0] ?? "User";
+  return base
+    .replace(/[._-]+/g, " ")
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0]?.toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const mockLogin = async (email: string, password: string) => {
   ensureMockData();
   if (!email || !password) {
     throw new Error("Email and password are required.");
   }
-  const user = getUsers().find(
-    (item) => item.email.toLowerCase() === email.toLowerCase() && item.active
+  const users = getUsers();
+  const normalizedEmail = email.toLowerCase();
+  const role = resolveRoleFromEmail(normalizedEmail);
+  const existing = users.find(
+    (item) => item.email.toLowerCase() === normalizedEmail
   );
-  if (!user) {
-    throw new Error("Invalid credentials.");
+  const user = existing
+    ? { ...existing, role }
+    : {
+        id: `user-${Math.random().toString(36).slice(2, 10)}`,
+        fullName: toDisplayName(email),
+        email,
+        role,
+        active: true
+      };
+  if (!user.active) {
+    throw new Error("Account is inactive.");
+  }
+  if (!existing) {
+    users.push(user);
+  } else if (existing.role !== role) {
+    const updated = users.map((item) =>
+      item.id === existing.id ? user : item
+    );
+    saveUsers(updated);
+  }
+  if (!existing) {
+    saveUsers(users);
   }
   const session = { token: createToken(), user };
   saveSession(session);
@@ -277,14 +314,18 @@ const mockGetAdminRows = async (dateKey: string) => {
 
 const mockUpsertUser = async (user: User) => {
   const users = getUsers();
+  const normalized = {
+    ...user,
+    role: resolveRoleFromEmail(user.email)
+  };
   const existingIndex = users.findIndex((item) => item.id === user.id);
   if (existingIndex >= 0) {
-    users[existingIndex] = user;
+    users[existingIndex] = normalized;
   } else {
-    users.push(user);
+    users.push(normalized);
   }
   saveUsers(users);
-  return user;
+  return normalized;
 };
 
 const mockToggleUser = async (userId: string) => {

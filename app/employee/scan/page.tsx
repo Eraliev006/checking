@@ -9,7 +9,7 @@ import { config } from "@/config";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -74,21 +74,19 @@ export default function EmployeeScanPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Scan office QR</CardTitle>
-          <CardDescription>Use your camera to check in or check out.</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <Card className="border-slate-200/70 shadow-sm dark:border-slate-800">
+        <CardContent className="space-y-6 p-6">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300">
+            Hold your camera steady over the office QR code. If the camera is unavailable, enter the
+            code manually below.
+          </div>
           <div className="grid gap-6 lg:grid-cols-[2fr,1fr]">
             <div className="space-y-3">
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-900/5 dark:border-slate-800">
                 {!cameraReady && !cameraError && <Skeleton className="h-64 w-full" />}
                 <video ref={videoRef} className="h-64 w-full object-cover" />
               </div>
-              {cameraError && (
-                <p className="text-sm text-rose-500">{cameraError}</p>
-              )}
+              {cameraError && <p className="text-sm text-rose-500">{cameraError}</p>}
             </div>
             <div className="space-y-4">
               <div>
@@ -106,7 +104,10 @@ export default function EmployeeScanPage() {
               >
                 {scanning ? "Recording..." : "Submit code"}
               </Button>
-              <Button variant="outline" className="w-full" onClick={() => router.push("/employee")}
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => router.push("/employee")}
               >
                 Back to dashboard
               </Button>

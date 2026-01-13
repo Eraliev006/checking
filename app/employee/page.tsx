@@ -6,8 +6,10 @@ import Link from "next/link";
 import { api, type AttendanceDay } from "@/lib/api";
 import { formatDate, formatTime, toDateKey } from "@/lib/date";
 import { useAuth } from "@/hooks/use-auth";
+import { ArrowUpRight } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -57,51 +59,72 @@ export default function EmployeeHomePage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Today</CardTitle>
-          <CardDescription>Track your latest check-in status.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Status</p>
-              <div className="mt-2 flex items-center gap-3">
-                <p className="text-2xl font-semibold">{statusCopy(today)}</p>
+      <Card className="border-slate-200/70 shadow-sm dark:border-slate-800">
+        <CardContent className="space-y-6 p-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
                 <Badge className={statusTone(today.status)}>{today.status}</Badge>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Today</p>
               </div>
-              <div className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-                <p>Last action: {formatTime(today.outTime ?? today.inTime)}</p>
-                <p>Checked-in: {formatTime(today.inTime)}</p>
-                <p>Checked-out: {formatTime(today.outTime)}</p>
+              <div>
+                <p className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  {statusCopy(today)}
+                </p>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                  Last action: {formatTime(today.outTime ?? today.inTime)}
+                </p>
+              </div>
+              <div className="grid gap-3 text-sm text-slate-500 dark:text-slate-400 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Checked in</p>
+                  <p className="mt-1 font-medium text-slate-900 dark:text-white">
+                    {formatTime(today.inTime)}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950">
+                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Checked out</p>
+                  <p className="mt-1 font-medium text-slate-900 dark:text-white">
+                    {formatTime(today.outTime)}
+                  </p>
+                </div>
               </div>
             </div>
-            <Button asChild size="lg">
-              <Link href="/employee/scan">Scan QR</Link>
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href="/employee/scan">
+                Scan QR
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekly preview</CardTitle>
-          <CardDescription>Keep an eye on your last 7 days.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {week.map((day) => (
-            <div
-              key={day.date}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-800 dark:bg-slate-950"
-            >
-              <div>
-                <p className="font-medium">{formatDate(day.date)}</p>
-                <p className="text-xs text-slate-400">In: {formatTime(day.inTime)}</p>
+      <Card className="border-slate-200/70 shadow-sm dark:border-slate-800">
+        <CardContent className="space-y-4 p-6">
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">
+              Weekly preview
+            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Your last seven working days.
+            </p>
+          </div>
+          <div className="space-y-3">
+            {week.map((day) => (
+              <div
+                key={day.date}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm dark:border-slate-800 dark:bg-slate-950"
+              >
+                <div>
+                  <p className="font-medium">{formatDate(day.date)}</p>
+                  <p className="text-xs text-slate-400">In: {formatTime(day.inTime)}</p>
+                </div>
+                <Badge className={statusTone(day.status)}>{day.status}</Badge>
+                <p className="text-xs text-slate-400">Out: {formatTime(day.outTime)}</p>
               </div>
-              <Badge className={statusTone(day.status)}>{day.status}</Badge>
-              <p className="text-xs text-slate-400">Out: {formatTime(day.outTime)}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>
