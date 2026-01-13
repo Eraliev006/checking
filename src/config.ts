@@ -15,8 +15,7 @@ type PublicConfig = {
 
 const isServer = typeof window === "undefined";
 
-const getEnvValue = (key: RequiredKey) => {
-  const value = process.env[key];
+const getEnvValue = (key: RequiredKey, value: string | undefined) => {
   if (!value) {
     const message = `Missing required env var: ${key}. Add it to your .env.local.`;
     if (isServer) {
@@ -31,10 +30,20 @@ const getEnvValue = (key: RequiredKey) => {
 };
 
 export const config: PublicConfig = {
-  appName: getEnvValue("NEXT_PUBLIC_APP_NAME"),
-  useMockApi: getEnvValue("NEXT_PUBLIC_USE_MOCK_API") === "true",
+  appName: getEnvValue(
+    "NEXT_PUBLIC_APP_NAME",
+    process.env.NEXT_PUBLIC_APP_NAME
+  ),
+  useMockApi:
+    getEnvValue(
+      "NEXT_PUBLIC_USE_MOCK_API",
+      process.env.NEXT_PUBLIC_USE_MOCK_API
+    ) === "true",
   apiBaseUrl: process.env.NEXT_PUBLIC_API_BASE_URL ?? "",
-  officeQrCode: getEnvValue("NEXT_PUBLIC_OFFICE_QR_CODE")
+  officeQrCode: getEnvValue(
+    "NEXT_PUBLIC_OFFICE_QR_CODE",
+    process.env.NEXT_PUBLIC_OFFICE_QR_CODE
+  )
 };
 
 if (!config.useMockApi && !config.apiBaseUrl && isServer) {
