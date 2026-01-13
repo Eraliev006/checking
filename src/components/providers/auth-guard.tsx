@@ -21,7 +21,7 @@ export const AuthGuard = ({
       router.replace("/login");
     }
     if (!loading && user && user.role !== role) {
-      router.replace("/login");
+      router.replace(user.role === "admin" ? "/admin" : "/employee");
     }
   }, [loading, router, user, role]);
 

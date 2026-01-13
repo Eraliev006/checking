@@ -6,7 +6,7 @@ import { api, type AttendanceDay } from "@/lib/api";
 import { formatDate, formatTime, getMonthOptions } from "@/lib/date";
 import { useAuth } from "@/hooks/use-auth";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -38,25 +38,29 @@ export default function EmployeeHistoryPage() {
   }, [user, month]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>History</CardTitle>
-        <CardDescription>Review your attendance month by month.</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="max-w-xs">
-          <Select value={month} onValueChange={setMonth}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select month" />
-            </SelectTrigger>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+    <Card className="border-slate-200/70 shadow-sm dark:border-slate-800">
+      <CardContent className="space-y-4 p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white">History</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Review your attendance month by month.
+            </p>
+          </div>
+          <div className="w-full max-w-xs">
+            <Select value={month} onValueChange={setMonth}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select month" />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {loading ? (
@@ -90,20 +94,20 @@ export default function EmployeeHistoryPage() {
             <div className="hidden lg:block">
               <Table>
                 <TableHeader>
-                  <TableRow>
+                  <TableRow className="text-slate-400">
                     <TableHead>Date</TableHead>
                     <TableHead>In</TableHead>
                     <TableHead>Out</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {history.map((day) => (
-                    <TableRow key={day.date}>
+                    <TableRow key={day.date} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40">
                       <TableCell>{formatDate(day.date)}</TableCell>
                       <TableCell>{formatTime(day.inTime)}</TableCell>
                       <TableCell>{formatTime(day.outTime)}</TableCell>
-                      <TableCell>
+                      <TableCell className="text-right">
                         <Badge className={statusClass(day.status)}>{day.status}</Badge>
                       </TableCell>
                     </TableRow>

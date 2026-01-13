@@ -7,12 +7,20 @@ import { config } from "@/config";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { user, login, demoLogin, loading } = useAuth();
+  const { user, login, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -43,24 +51,16 @@ export default function LoginPage() {
     }
   };
 
-  const handleDemo = async (role: "employee" | "admin") => {
-    setError(null);
-    setSubmitting(true);
-    try {
-      await demoLogin(role);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to sign in.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10 dark:bg-slate-950">
-      <Card className="w-full max-w-lg">
+      <Card className="w-full max-w-lg border-slate-200/70 shadow-sm dark:border-slate-800">
         <CardHeader>
-          <CardTitle>Welcome to {config.appName}</CardTitle>
-          <CardDescription>Sign in to manage your attendance.</CardDescription>
+          <CardTitle className="text-2xl font-semibold tracking-tight">
+            Welcome to {config.appName}
+          </CardTitle>
+          <CardDescription className="text-sm text-slate-500">
+            Sign in to access your attendance dashboard.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -95,28 +95,43 @@ export default function LoginPage() {
               {submitting ? "Signing in..." : "Sign in"}
             </Button>
           </form>
-          <div className="mt-6 space-y-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Demo access</p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                type="button"
-                variant="secondary"
-                className="flex-1"
-                onClick={() => handleDemo("employee")}
-                disabled={submitting || loading}
-              >
-                Demo: Employee
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                className="flex-1"
-                onClick={() => handleDemo("admin")}
-                disabled={submitting || loading}
-              >
-                Demo: Admin
-              </Button>
-            </div>
+          <div className="mt-6">
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="text-sm font-medium text-slate-500 underline-offset-4 transition hover:text-slate-900 hover:underline dark:text-slate-400 dark:hover:text-slate-100"
+                >
+                  Demo accounts
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Demo accounts</DialogTitle>
+                  <DialogDescription>
+                    Use any password in mock mode. Your role is resolved automatically.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                  <div className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-800">
+                    <div>
+                      <p className="font-medium text-slate-900 dark:text-slate-100">Employee</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        employee@demo.local
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-3 dark:border-slate-800">
+                    <div>
+                      <p className="font-medium text-slate-900 dark:text-slate-100">Admin</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        admin@demo.local
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
